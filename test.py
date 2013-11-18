@@ -177,7 +177,6 @@ class TestCard(unittest.TestCase):
   def testHighCard(self):
 
     self.assertEqual(self.hands['high'].highCard(), [card.KING, card.QUEEN, 7, 5, 2])
-
     
 
 if __name__ == '__main__':
