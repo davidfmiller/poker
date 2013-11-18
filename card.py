@@ -196,7 +196,6 @@ class Hand:
     cards[-1].rank = 1
     mycards = sorted(cards)
     last = None
-
     return self.__sequence(mycards)
 
   def __tuples(self):
@@ -235,10 +234,10 @@ class Hand:
     if len(b) != 2:
       return False
 
-    four = b[0][0]
-    high = b[1][0]
+    if b[0][1] != 4:
+      return False
 
-    return [four, high]
+    return [b[0][0], b[1][0]]
 
   def hasThreeOfAKind(self):
     """
@@ -250,7 +249,7 @@ class Hand:
     if len(b) != 3:
       return False
 
-    if b[1][1] == 2 or b[0][1] != 3:
+    if b[0][1] != 3 or b[1][1] == 2:
       return False
 
     # grab the 3 of a kind rank
@@ -295,9 +294,11 @@ class Hand:
     if len(b) != 4:
       return False
 
+    # remove the pair from the list
     pair = b[0][1]
     b.pop(0)
 
+    # sort the remaining cards
     tuples = sorted(b, key=operator.itemgetter(0), reverse=True)
     high = tuples[0][0]
     med = tuples[1][0]
@@ -314,10 +315,28 @@ class Hand:
 
   def __cmp__(self, other):
     """
-    
+    @return int (self - other)
     """
 
-    mine = self.__tuples()
-    other = other.__tuples()
+    mf = mine.hasFlush()
+    of = other.hasFlush()
+
+    ms = mine.hasStraight()
+    os = other.hasStraight()
+
+    mt = self.__tuples()
+    ot = other.__tuples()
+
+    # straight flush
+    if mf and sf and (of < mf or os < ms):
+      return 1
+
+    if len(mt) == 2:
+      if len(ot) != 2:
+        return 1 # i have a four of a kind
+      else:
+        return mt > ot # determine higher four of a kind
     
-    return 1
+#    if len(mt) == 
+    
+    pass
