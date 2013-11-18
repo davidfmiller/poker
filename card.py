@@ -134,6 +134,7 @@ class Hand:
 
     return buf
 
+
   def hasStraightFlush(self):
     """
     @return (mixed) - the list of cards in descending order if a straight flush; False if no straight flush exists
@@ -147,6 +148,7 @@ class Hand:
 
     return self.hasStraight()
 
+
   def hasFlush(self):
     """
     @return (mixed) - the list of cards in descending order if a flush; False if no flush exists
@@ -158,13 +160,12 @@ class Hand:
       elif i.suit != last.suit:
         return False
 
-    # cards in reversed order
     return self.cards
 
 
   def __sequence(self, hand=None):
     """
-    Determine if a hand's cards are in increasing sequential order
+    Determine if a hand's cards are in decreasing sequential order
     
     @param (hand, optional) - the hand of cards to check 
     @return (mixed) - False if the hand does not have a straight (
@@ -184,7 +185,11 @@ class Hand:
 
     return hand[0]
 
+
   def __cmpList(self, a, b):
+    """
+      Find which list is greater than another
+    """
     i = 0
     while i < len(a):
       if a[i] != b[i]:
@@ -257,6 +262,7 @@ class Hand:
 
     return [b[0][0], b[1][0]]
 
+
   def hasThreeOfAKind(self):
     """
 
@@ -304,6 +310,7 @@ class Hand:
 
     return l
 
+
   def hasPair(self):
     """
     @return 
@@ -325,11 +332,13 @@ class Hand:
 
     return [pair, high, med, low]
 
+
   def highCard(self):
     """
     
     """
     return self.cards
+
 
   def __cmp__(self, other):
     """
@@ -351,22 +360,26 @@ class Hand:
         return self.cards[0].rank - other.cards[0].rank
       else:
         return 1
+    elif os and of: # if they have straight flush we lose
+        return -1
 
     # four of a kind
-    if len(mt) == 2 and mt[0][1] == 4:
-      if len(ot) != 2:
+    if len(mt) == 2:
+      if len(ot) > 2: # they don't have four of a kind
         return 1 
-      elif ot[0][1] == 3: # other hand is full house
-        return 1
       else:
         return mt[1][0] - ot[1][0] # determine higher four of a kind
+    elif len(ot) == 2: # if they have four of a kind we lose
+      return -1
 
     # full house
-    if len(mt) == 2 and mt[0][1] == 3:
-      if len(ot) != 2:
+    elif len(mt) == 2 and mt[0][1] == 3:
+      if len(ot) > 3:
         return 1
       else:  
         return self.__cmpList(mt, ot)
+    elif len(ot) == 2 and ot[0][1] == 3:
+      return -1
 
     # flush
     if mf:
@@ -374,29 +387,41 @@ class Hand:
         return 1
       else:
         return self.__cmpList(mf, of)
+    elif of:
+      return -1
 
     # straight
     if ms:
       if not os:
         return 1
       else:
-        return self.__cmpList(self.cards, other.cards)
+        return ms - os
+    elif os:
+      return -1
 
-    if len(mt) == 3:
+    if len(mt) == 3: # three of a kind or two pairs
 
-      # three of a kind    
-      if mt[0][1] == 3 and mt[1][1] != 2:
-        if len(ot) != 3 or mt[0][1] != 3 or mt[1][1] != 2:
+      if len(ot) > 3:
+        return 1
+
+      if mt[0][1] == 3: # three of a kind     
+        if ot[0][1] != 3:
           return 1
         else:
           return self.__cmpList(self.cards, other.cards)
+      elif len(ot) == 3 and ot[0][1] == 3:
+        return -1
 
-      # two pairs
-      if mt[0][0] == 2 and mt[0][1] == 2:
-        if ot[0][0] != 2 or ot[0][1] != 2:
+      if mt[0][1] == 2: # two pairs
+        if len(ot) != 3 or ot[0][1] != 2:
           return 1
         else:
           return self.__cmpList(self.cards, other.cards)
+      elif len(ot) == 3 and ot[0][0] == 2 and ot[0][1] == 2:
+        return -1
+
+    elif len(ot) <= 3:
+      return -1
 
     # single pair
     if len(mt) == 4:
@@ -404,6 +429,8 @@ class Hand:
         return 1
       else:
         return self.__cmpList(self.cards, other.cards)
+    elif len(ot) <= 4:
+      return -1
 
     # high card
-    return self.cards[0].rank - other.cards[0].rank
+    return self.__cmpList(self.cards, other.cards)
