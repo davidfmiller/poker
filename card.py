@@ -37,6 +37,7 @@ class Card:
 
   def __init__(self, rank, suit):
     """
+    Create a new card
 
     @param rank (int) - 
     @param suit (string) - one of card.CLUBS ('♣'), card.HEARTS ('♥'), card.SPADES ('♠'), card.DIAMONDS ('♦')
@@ -70,8 +71,9 @@ class Card:
 
   def __cmp__(self, other):
     """
-    
-    @param other (Card)
+    Determine which card has a higher rank
+
+    @param other (Card,int)
     """
     if isinstance(other, int):
       return self.rank - other
@@ -81,7 +83,8 @@ class Card:
 
   def __str__(self):
     """
-    A string representation of the card, ex: 'A♣', '2♥', etc.
+    Retrieve a string representation of the card, ex: 'A♣', '2♥'
+
     @return string
     """
   
@@ -98,13 +101,16 @@ class Card:
     return str(r) + self.suit
 
 
-  def __cmp__(self, other):
+  def __sub__(self, other):
     """
     
-    @param other
+    
+    @return int
     """
-    return cmp(self.rank, other.rank)
+    if isinstance(other, int):
+      return self.rank - other
 
+    return self.rank - other.rank
 
 
 class Hand:
@@ -113,20 +119,19 @@ class Hand:
   """
   def __init__(self, cards):
     """
-    
+      
     """
     if len(cards) != 5:
       raise Exception, 'Hand ' + str(cards) + ' is missing a card or two'
 
     self.cards = sorted(cards, reverse=True)
 
-
   def __str__(self):
     """
-    @return (string) - ex: A string representation of the hand, ex: 
+    @return (string) - ex: A string representation of the hand with cards in increasing order, ex: '7♣,8♣,9♥,10♣,J♦'
     """
     buf = ''
-    
+
     rev = self.cards[::-1]
 
     for card in rev:
@@ -200,7 +205,10 @@ class Hand:
 
 
   def __tuples(self):
-
+    """
+    Return a list of tuples containing the frequency of cards in the hand,
+    ex: 2♥,A♠,5♥,A♥,A♦ → [(14, 3), (2, 1), (5, 1)] 
+    """
     bucket = {}
 
     for i in self.cards:
@@ -215,6 +223,7 @@ class Hand:
 
   def hasStraight(self):
     """
+    
     @return the highest rank in the straight if it exists; False if not
     """
 
@@ -230,7 +239,10 @@ class Hand:
     cards[0].rank = 1
     mycards = sorted(cards, reverse=True)
     last = None
-    return self.__sequence(mycards)
+    if self.__sequence(mycards):
+      return mycards[0].rank
+
+    return False
 
 
   def hasFullhouse(self):
@@ -336,8 +348,9 @@ class Hand:
   def highCard(self):
     """
     
+    @return
     """
-    return self.cards
+    return copy.copy(self.cards)
 
 
   def __cmp__(self, other):
@@ -345,27 +358,30 @@ class Hand:
     @return int (self - other)
     """
 
-    mf = mine.hasFlush()
+    mf = self.hasFlush()
     of = other.hasFlush()
 
-    ms = mine.hasStraight()
+    ms = self.hasStraight()
     os = other.hasStraight()
 
     mt = self.__tuples()
     ot = other.__tuples()
 
+    ml = len(mt)
+    ol = len(ot)
+
     # straight flush
-    if mf and sf:
+    if mf and ms:
       if os and of: # if they also have one, choose high card
-        return self.cards[0].rank - other.cards[0].rank
+        return ms - os
       else:
         return 1
     elif os and of: # if they have straight flush we lose
         return -1
 
     # four of a kind
-    if len(mt) == 2:
-      if len(ot) > 2: # they don't have four of a kind
+    if ml == 2:
+      if ol > 2: # they don't have four of a kind
         return 1 
       else:
         return mt[1][0] - ot[1][0] # determine higher four of a kind
@@ -373,12 +389,12 @@ class Hand:
       return -1
 
     # full house
-    elif len(mt) == 2 and mt[0][1] == 3:
-      if len(ot) > 3:
+    elif ml == 2 and mt[0][1] == 3:
+      if ol > 3:
         return 1
       else:  
         return self.__cmpList(mt, ot)
-    elif len(ot) == 2 and ot[0][1] == 3:
+    elif ol == 2 and ot[0][1] == 3:
       return -1
 
     # flush
@@ -399,9 +415,9 @@ class Hand:
     elif os:
       return -1
 
-    if len(mt) == 3: # three of a kind or two pairs
+    if ml == 3: # three of a kind or two pairs
 
-      if len(ot) > 3:
+      if ol > 3:
         return 1
 
       if mt[0][1] == 3: # three of a kind     
@@ -413,23 +429,23 @@ class Hand:
         return -1
 
       if mt[0][1] == 2: # two pairs
-        if len(ot) != 3 or ot[0][1] != 2:
+        if ol != 3 or ot[0][1] != 2:
           return 1
         else:
           return self.__cmpList(self.cards, other.cards)
-      elif len(ot) == 3 and ot[0][0] == 2 and ot[0][1] == 2:
+      elif ol == 3 and ot[0][0] == 2 and ot[0][1] == 2:
         return -1
 
-    elif len(ot) <= 3:
+    elif ol <= 3: # if they have two pairs or three of a kind 
       return -1
 
     # single pair
-    if len(mt) == 4:
-      if len(ot) != 4:
+    if ml == 4:
+      if ol != 4:
         return 1
       else:
         return self.__cmpList(self.cards, other.cards)
-    elif len(ot) <= 4: # they have a pair, we lose
+    elif ol <= 4: # they have a pair, we lose
       return -1
 
     # high card

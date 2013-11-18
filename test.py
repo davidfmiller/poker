@@ -8,12 +8,6 @@ class TestCard(unittest.TestCase):
 
   def setUp(self):
 
-#     self.deck = {}
-#     for suit in card.SUITS:
-#       self.deck[suit] = []
-#       for rank in range(2,card.ACE + 1):
-#         self.deck[suit] = card.Card(rank, suit)
-
     self.aceOfSpades = card.Card(card.ACE, card.SPADES)
     self.kingOfDiamonds = card.Card(card.KING, card.DIAMONDS)
     self.queenOfHearts = card.Card(card.QUEEN, card.HEARTS)
@@ -36,11 +30,23 @@ class TestCard(unittest.TestCase):
 
     self.twoOfClubs = card.Card(2, card.CLUBS)
 
-  def tearDown(self):
-    pass
+    self.hands = {}
 
-#  def testSetup(self):    
-#    self.assertEqual(len(self.deck), 4)
+    self.hands['twoPairs'] = card.Hand([self.twoOfHearts, self.twoOfClubs, self.sevenOfHearts, self.sevenOfClubs, self.queenOfHearts])
+    self.hands['straightflush'] = card.Hand([card.Card(11, card.CLUBS), card.Card(9, card.CLUBS), card.Card(10, card.CLUBS), card.Card(8, card.CLUBS), card.Card(7, card.CLUBS)])
+    self.hands['highStraight'] = card.Hand([self.kingOfDiamonds, self.aceOfSpades, self.jackOfClubs, self.queenOfHearts, self.tenOfClubs])
+    self.hands['lowStraight'] = card.Hand([self.twoOfHearts, self.threeOfHearts, self.fourOfHearts, self.fiveOfHearts, self.aceOfSpades])
+    self.hands['four'] = card.Hand([self.aceOfSpades, self.aceOfClubs, self.aceOfDiamonds, self.jackOfClubs, self.aceOfHearts])
+    self.hands['fullHouse'] = card.Hand([self.aceOfSpades, self.aceOfClubs, self.aceOfDiamonds, self.twoOfHearts, self.twoOfClubs])
+    self.hands['three'] = card.Hand([self.aceOfSpades, self.aceOfDiamonds, self.aceOfHearts, self.fiveOfHearts, self.twoOfHearts])
+    self.hands['flush'] = card.Hand([self.twoOfHearts, self.threeOfHearts, self.sevenOfHearts, self.nineOfHearts, self.queenOfHearts])
+    self.hands['noflush'] = card.Hand([self.jackOfClubs, self.threeOfHearts, self.sevenOfHearts, self.nineOfHearts, self.queenOfHearts])
+    self.hands['twoPairs'] = card.Hand([self.twoOfHearts, self.twoOfClubs, self.sevenOfHearts, self.sevenOfClubs, self.queenOfHearts])
+    self.hands['pair'] = card.Hand([self.twoOfHearts, self.twoOfClubs, self.sevenOfHearts, self.nineOfHearts, self.queenOfHearts])
+    self.hands['high'] = card.Hand([self.twoOfClubs, self.kingOfDiamonds, self.fiveOfHearts, self.sevenOfHearts, self.queenOfHearts])
+
+  def tearDown(self):
+    self.hands = None
 
   def testEq(self):
 
@@ -81,82 +87,68 @@ class TestCard(unittest.TestCase):
 
   def testHandCmp(self):
 
-    straightFlush = card.Hand([card.Card(11, card.CLUBS), card.Card(9, card.CLUBS), card.Card(10, card.CLUBS), card.Card(8, card.CLUBS), card.Card(7, card.CLUBS)])
-    highStraight = card.Hand([self.kingOfDiamonds, self.aceOfSpades, self.jackOfClubs, self.queenOfHearts, self.tenOfClubs])
-    lowStraight = card.Hand([self.twoOfHearts, self.threeOfHearts, self.fourOfHearts, self.fiveOfHearts, self.aceOfSpades])
+    h = self.hands
 
-#    self.assertTrue(straightFlush > highStraight)
-#    self.assertFalse(lowStraight > highStraight)
+    self.assertTrue(h['straightflush'] > h['highStraight'])
+    self.assertTrue(h['highStraight'] > h['lowStraight'])
+    self.assertFalse(h['lowStraight'] > h['highStraight'])
+
+    self.assertTrue(h['twoPairs'] > h['fullHouse'])
+    self.assertTrue(h['twoPairs'] > h['high'])
+
+    self.assertTrue(h['twoPairs'] > h['pair'])
+    self.assertFalse(h['twoPairs'] < h['pair'])
 
   def testStraightFlush(self):
-    straightflush = card.Hand([card.Card(11, card.CLUBS), card.Card(9, card.CLUBS), card.Card(10, card.CLUBS), card.Card(8, card.CLUBS), card.Card(7, card.CLUBS)])
-    self.assertEqual(straightflush.hasStraightFlush(), 11)
+    self.assertEqual(self.hands['straightflush'].hasStraightFlush(), 11)
+    pass
 
   def testFourOfAKind(self):
-    four = card.Hand([self.aceOfSpades, self.aceOfClubs, self.aceOfDiamonds, self.jackOfClubs, self.aceOfHearts])
-    self.assertEqual(four.hasFourOfAKind(), [card.ACE, card.JACK])
-
-    fullHouse = card.Hand([self.aceOfSpades, self.aceOfClubs, self.aceOfDiamonds, self.twoOfHearts, self.twoOfClubs])
-    self.assertFalse(fullHouse.hasFourOfAKind())
+    self.assertEqual(self.hands['four'].hasFourOfAKind(), [card.ACE, card.JACK])
+    self.assertFalse(self.hands['fullHouse'].hasFourOfAKind())
 
   def testThreeOfAKind(self):
-    three = card.Hand([self.aceOfSpades, self.aceOfDiamonds, self.aceOfHearts, self.fiveOfHearts, self.twoOfHearts])
-    self.assertEqual(three.hasThreeOfAKind(), [card.ACE, 5, 2])
 
-    four = card.Hand([self.aceOfSpades, self.aceOfClubs, self.aceOfDiamonds, self.jackOfClubs, self.aceOfHearts])
-    self.assertFalse(four.hasThreeOfAKind())
+    self.assertEqual(self.hands['three'].hasThreeOfAKind(), [card.ACE, 5, 2])
+    self.assertFalse(self.hands['four'].hasThreeOfAKind())
 
   def testStraight(self):
     """
     
     """
-    highStraight = card.Hand([self.kingOfDiamonds, self.aceOfSpades, self.jackOfClubs, self.queenOfHearts, self.tenOfClubs])
-    lowStraight = card.Hand([self.twoOfHearts, self.threeOfHearts, self.fourOfHearts, self.fiveOfHearts, self.aceOfSpades])
-
-    self.assertEqual(highStraight.hasStraight(), 14)
-    self.assertEqual(lowStraight.hasStraight(), 5)
+    self.assertEqual(self.hands['highStraight'].hasStraight(), 14)
+    self.assertEqual(self.hands['lowStraight'].hasStraight(), 5)
 
   def testFullHouse(self):
 
-    fullHouse = card.Hand([self.aceOfSpades, self.aceOfClubs, self.aceOfDiamonds, self.twoOfHearts, self.twoOfClubs])
-    self.assertEqual(fullHouse.hasFullhouse(), [14, 2])
+    self.assertEqual(self.hands['fullHouse'].hasFullhouse(), [14, 2])
 
 
   def testFlush(self):
 
-    flush = card.Hand([self.twoOfHearts, self.threeOfHearts, self.sevenOfHearts, self.nineOfHearts, self.queenOfHearts])
-    noflush = card.Hand([self.jackOfClubs, self.threeOfHearts, self.sevenOfHearts, self.nineOfHearts, self.queenOfHearts])
 
-    self.assertEqual(flush.hasFlush(), [12,9,7,3,2])
-    self.assertFalse(noflush.hasFlush())
+    self.assertEqual(self.hands['flush'].hasFlush(), [12,9,7,3,2])
+    self.assertFalse(self.hands['noflush'].hasFlush())
 
   def testThreeOfAKind(self):
-    three = card.Hand([self.aceOfSpades, self.aceOfDiamonds, self.aceOfHearts, self.fiveOfHearts, self.twoOfHearts])
-    self.assertEqual(three.hasThreeOfAKind(), [card.ACE, 5, 2])
 
-    twoPairs = card.Hand([self.twoOfHearts, self.twoOfClubs, self.sevenOfHearts, self.sevenOfClubs, self.queenOfHearts])
-    self.assertFalse(twoPairs.hasThreeOfAKind())
+    self.assertEqual(self.hands['three'].hasThreeOfAKind(), [card.ACE, 5, 2])
+    self.assertFalse(self.hands['twoPairs'].hasThreeOfAKind())
 
   def testTwoPairs(self):
 
-    twoPairs = card.Hand([self.twoOfHearts, self.twoOfClubs, self.sevenOfHearts, self.sevenOfClubs, self.queenOfHearts])
-    self.assertEqual(twoPairs.hasTwoPairs(), [7, 2, card.QUEEN])
+
+    self.assertEqual(self.hands['twoPairs'].hasTwoPairs(), [7, 2, card.QUEEN])
 
   def testPair(self):
 
-    pair = card.Hand([self.twoOfHearts, self.twoOfClubs, self.sevenOfHearts, self.nineOfHearts, self.queenOfHearts])
-    self.assertEqual(pair.hasPair(), [2, card.QUEEN, 9, 7])
-
-    twoPairs = card.Hand([self.twoOfHearts, self.twoOfClubs, self.sevenOfHearts, self.sevenOfClubs, self.queenOfHearts])
-    self.assertFalse(twoPairs.hasPair())
-
-    three = card.Hand([self.aceOfSpades, self.aceOfDiamonds, self.aceOfHearts, self.fiveOfHearts, self.twoOfHearts])
-    self.assertFalse(three.hasPair())
+    self.assertEqual(self.hands['pair'].hasPair(), [2, card.QUEEN, 9, 7])
+    self.assertFalse(self.hands['twoPairs'].hasPair())
+    self.assertFalse(self.hands['three'].hasPair())
 
   def testHighCard(self):
 
-    high = card.Hand([self.twoOfClubs, self.kingOfDiamonds, self.fiveOfHearts, self.sevenOfHearts, self.queenOfHearts])
-    self.assertEqual(high.highCard(), [card.KING, card.QUEEN, 7, 5, 2])
+    self.assertEqual(self.hands['high'].highCard(), [card.KING, card.QUEEN, 7, 5, 2])
 
     
 
