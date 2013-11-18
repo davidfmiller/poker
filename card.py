@@ -405,11 +405,11 @@ class Hand:
     ms = self.hasStraight()
     os = other.hasStraight()
 
-    mt = self.__tuples()
-    ot = other.__tuples()
+    mt = self.__tuples()  # retrieve the distribution of ranks in my hand
+    ot = other.__tuples() #                                ... in the other hand
 
-    ml = len(mt)
-    ol = len(ot)
+    ml = len(mt) # ml contains the number of unique ranks in my hand
+    ol = len(ot) #                                    ... in the other hand
 
     if mf and ms:      # we have a straight flush
       if os and of:    # if they also have one, winner has the high card
