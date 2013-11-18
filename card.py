@@ -81,8 +81,7 @@ class Card:
         '14' : 'A',
         '13' : 'K',
         '12' : 'Q',
-        '11' : 'J',
-        '1' : 'A',
+        '11' : 'J'
       }.get(str(r))
 
     return str(r) + self.suit
@@ -90,8 +89,9 @@ class Card:
 
   def __sub__(self, other):
     """
-    
-    
+    Subtract one card from another, used to determine their relative rank
+
+    @param other (int, Card)
     @return int
     """
     if isinstance(other, int):
@@ -153,6 +153,11 @@ class Hand:
   def __cmpList(self, a, b):
     """
       Find which list is greater than another
+
+      @return int
+      @param a (list)
+      @param b (list)
+      @see __cmp__
     """
     i = 0
     while i < len(a):
@@ -334,11 +339,16 @@ class Hand:
 
   def highCard(self):
     """
-    
-    @return
-    """
-    return copy.copy(self.cards)
+    Return a list of cards in descending order if no higher hand exists; False otherwise
 
+    @return list of 
+    """
+
+    b = self.__tuples()
+    if self.hasFlush() or self.hasStraight() or len(b) < 5:
+      return False
+    
+    return copy.copy(self.cards)
 
   def __cmp__(self, other):
     """
@@ -430,12 +440,12 @@ class Hand:
 
     # single pair
     if ml == 4:
-      if ol != 4:
+      if ol != 4: # if they don't have a pair we win
         return 1
       else:
-        return self.__cmpList(self.cards, other.cards)
+        return self.__cmpList(self.cards, other.cards) # see who has the highest pair & remaining cards
     elif ol <= 4: # they have a pair, we lose
       return -1
 
     # high card
-    return self.__cmpList(self.cards, other.cards)
+    return self.__cmpList(self.cards, other.cards) # it boils down to high cards

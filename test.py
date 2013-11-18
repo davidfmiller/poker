@@ -155,6 +155,7 @@ class TestCard(unittest.TestCase):
     self.assertEqual(self.hands['pair'].hasPair(), [2, card.QUEEN, 9, 7])
     self.assertFalse(self.hands['twoPairs'].hasPair())
     self.assertFalse(self.hands['three'].hasPair())
+    self.assertFalse(self.hands['high'].hasPair())
 
   def testHighCard(self):
 
