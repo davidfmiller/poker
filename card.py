@@ -227,7 +227,7 @@ class Hand:
       return False
 
     # have an ace, check to see if we have a low straight
-    cards = copy.copy(self.cards)
+    cards = copy.deepcopy(self.cards)
     cards[0].rank = 1
     mycards = sorted(cards, reverse=True)
     last = None
@@ -358,6 +358,7 @@ class Hand:
     @return int
     @see __cmp__    
     """
+    
     return self.__cmp__(other) == 0
 
   def __cmp__(self, other):
@@ -393,17 +394,18 @@ class Hand:
       if ol > 2 or ot[0][1] < 4: # they don't have four of a kind
         return 1 
       else:
-        return mt[1][0] - ot[1][0] # determine higher four of a kind
-    elif len(ot) == 2: # if they have four of a kind we lose
+        return self.__cmpList(mt, ot)
+    elif len(ot) == 2 and ot[0][1] == 4: # if they have four of a kind we lose
       return -1
 
     # full house
-    elif ml == 2 and mt[0][1] == 3:
-      if ol > 3:
+    if ml == 2 and mt[0][1] == 3:
+      if ol > 2:
         return 1
       else:  
         return self.__cmpList(mt, ot)
     elif ol == 2 and ot[0][1] == 3:
+
       return -1
 
     # flush

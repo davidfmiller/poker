@@ -103,7 +103,7 @@ class TestCard(unittest.TestCase):
     self.assertTrue(h['highStraight'] > h['lowStraight'])
     self.assertFalse(h['lowStraight'] > h['highStraight'])
 
-    self.assertTrue(h['twoPairs'] > h['fullHouse'])
+    self.assertTrue(h['fullHouse'] > h['twoPairs'])
     self.assertTrue(h['twoPairs'] > h['high'])
 
     self.assertTrue(h['twoPairs'] > h['pair'])
