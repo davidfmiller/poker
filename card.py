@@ -411,84 +411,82 @@ class Hand:
     ml = len(mt)
     ol = len(ot)
 
-    # straight flush
-    if mf and ms:
-      if os and of: # if they also have one, choose high card
+    if mf and ms:      # we have a straight flush
+      if os and of:    # if they also have one, winner has the high card
         return ms - os
-      else:
+      else:            # if they don't have one we win
         return 1
-    elif os and of: # if they have straight flush we lose
+    elif os and of:    # if they have straight flush we lose
         return -1
 
-    # four of a kind
-    if ml == 2 and mt[0][1] == 4:
-      if ol > 2 or ot[0][1] < 4: # they don't have four of a kind
+    
+    if ml == 2 and mt[0][1] == 4: # we have four of a kind
+      if ol > 2 or ot[0][1] < 4:  # they don't have four of a kind we win
         return 1 
-      else:
-        return self.__cmpList(mt, ot)
+      else:              
+        return self.__cmpList(mt, ot)    # they have one so we who has the better cards
     elif len(ot) == 2 and ot[0][1] == 4: # if they have four of a kind we lose
       return -1
 
-    # full house
-    if ml == 2 and mt[0][1] == 3:
-      if ol > 2:
+    
+    if ml == 2 and mt[0][1] == 3:     # we have a full house
+      if ol > 2:                      # if they don't have one we win
         return 1
       else:  
-        return self.__cmpList(mt, ot)
-    elif ol == 2 and ot[0][1] == 3:
-
+        return self.__cmpList(mt, ot) # if they do see who has the better cards
+    elif ol == 2 and ot[0][1] == 3:   # they have a full house and we don't we lose
       return -1
-
-    # flush
-    if mf:
-      if not of:
+    
+    if mf:         # we have a flush
+      if not of:   # if they don't have a flush we win
         return 1
       else:
         return self.__cmpList(mf, of)
-    elif of:
+    elif of:                           # they have a flush and we don't we lose
       return -1
 
-    # straight
-    if ms:
-      if not os:
+    
+    if ms:              # we have a straight
+      if not os:        # if they don't have one we win
         return 1
       else:
-        return ms - os
+        return ms - os  # decide based on highest card
     elif os:
-      return -1
+      return -1         # they have a straight so we lose
+
 
     if ml == 3: # three of a kind or two pairs
 
-      if ol > 3:
+      if ol > 3: # if they have neither then we win
         return 1
 
-      if mt[0][1] == 3: # three of a kind     
-        if ot[0][1] != 3:
+      if mt[0][1] == 3:    # three of a kind
+        if ot[0][1] != 3:  # if they don't have three of a kind we win
           return 1
         else:
-          return self.__cmpList(self.__cards, other.__cards)
-      elif len(ot) == 3 and ot[0][1] == 3:
+          return self.__cmpList(self.__cards, other.__cards) # determine who has the better triples/remaining
+      elif len(ot) == 3 and ot[0][1] == 3:                   # if they have three of a kind & we won't we lose
         return -1
 
-      if mt[0][1] == 2: # two pairs
-        if ol != 3 or ot[0][1] != 2:
+      if mt[0][1] == 2:               # two pairs
+        if ol != 3:  # if they don't have 2 pairs we win
           return 1
         else:
-          return self.__cmpList(self.__cards, other.__cards)
-      elif ol == 3 and ot[0][0] == 2 and ot[0][1] == 2:
+          return self.__cmpList(self.__cards, other.__cards) # determine who has the better pairs & orphan
+      elif ol == 3 and ot[0][0] == 2 and ot[0][1] == 2:      # if they don't have two pairs we win
         return -1
 
-    elif ol <= 3: # if they have two pairs or three of a kind 
+    elif ol <= 3: # if they have two pairs or three of a kind and we have neither so we lose
       return -1
 
-    # single pair
-    if ml == 4:
+    
+    if ml == 4:   # we have a single pair
       if ol != 4: # if they don't have a pair we win
         return 1
       else:
         return self.__cmpList(self.__cards, other.__cards) # see who has the highest pair & remaining cards
-    elif ol <= 4: # they have a pair, we lose
+    elif ol <= 4:                                          # they have a pair we don'  so we lose
       return -1
 
-    # high card
+
     return self.__cmpList(self.__cards, other.__cards) # it boils down to high cards
