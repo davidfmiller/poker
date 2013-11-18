@@ -3,6 +3,7 @@
 
 import sys
 import operator
+import copy
 
 ACE = 14
 KING = 13
@@ -38,9 +39,9 @@ class Card:
     """
 
     @param rank (int) - 
-    @param suit (int) - one of CLUBS, HEARTS, SPADES, DIAMONDS
+    @param suit (string) - one of card.CLUBS ('♣'), card.HEARTS ('♥'), card.SPADES ('♠'), card.DIAMONDS ('♦')
     """
-    if not suit in [CLUBS, HEARTS, SPADES, DIAMONDS]:
+    if not suit in SUITS:
       raise Exception, str(suit) + ' is an invalid suit'
 
     # handle chars for card ranks
@@ -58,6 +59,7 @@ class Card:
     self.rank = rank
     self.suit = suit
 
+
   def __eq__(self, other):
     """
 
@@ -65,12 +67,14 @@ class Card:
     """
     return isinstance(other, int) and self.rank == other or self.rank == other.rank 
 
+
   def __cmp__(self, other):
     """
     
     @param other (Card)
     """
     return self.rank == other.rank
+
 
   def __str__(self):
     """
@@ -90,12 +94,15 @@ class Card:
 
     return str(r) + self.suit
 
+
   def __cmp__(self, other):
     """
     
     @param other
     """
     return cmp(self.rank, other.rank)
+
+
 
 class Hand:
   """
@@ -109,11 +116,11 @@ class Hand:
       raise Exception, 'Hand ' + str(cards) + ' is missing a card or two'
 
     self.cards = sorted(cards)
-#    pass
+
 
   def __str__(self):
     """
-    
+    @return (string) - ex: A string representation of the hand, ex: 
     """
     buf = ''
     for card in self.cards:
@@ -149,42 +156,20 @@ class Hand:
     rev = self.cards[::-1]
     return rev
 
-#  def __straight(self, cards):
-#    pass
 
-  def hasStraight(self):
+  def __sequence(self, hand=None):
     """
-    @return the highest rank in the straight if it exists; False if not
+    Determine if a hand's cards are in increasing sequential order
+    
+    @param (hand, optional) - the hand of cards to check 
+    @return (mixed) - False if the hand does not have a straight (
     """
 
-    hasAce = self.cards[-1].rank == ACE
-    broken = False
-
-    cards = self.cards
+    if not hand:
+      hand = self.cards
 
     last = None
-    for i in cards:
-      if not last:
-        last = i
-      elif (i.rank != last.rank + 1):
-        if not hasAce:
-          return False
-        else:
-          broken = True
-          break
-      else:
-        last = i
-
-    if not broken:
-      return last.rank
-
-    # have an ace, check to see if we have a low straight
-    cards[-1].rank = 1
-    mycards = sorted(cards)
-    last = None
-
-    for i in mycards:
-
+    for i in hand:
       if not last:
         last = i
       elif (i.rank != last.rank + 1):
@@ -192,10 +177,29 @@ class Hand:
       else:
         last = i
 
-    return last.rank
+    return last
+
+  def hasStraight(self):
+    """
+    @return the highest rank in the straight if it exists; False if not
+    """
+
+    if self.__sequence():
+      return self.cards[-1].rank
+
+    # if there's no ace then there's no chance for a low straight
+    if self.cards[-1].rank != ACE:
+      return False
+
+    # have an ace, check to see if we have a low straight
+    cards = copy.copy(self.cards)
+    cards[-1].rank = 1
+    mycards = sorted(cards)
+    last = None
+
+    return self.__sequence(mycards)
 
   def __tuples(self):
-    # return
 
     bucket = {}
 
@@ -229,11 +233,14 @@ class Hand:
 
     @return 
     """
-    b = self.__bucket()
+    b = self.__tuples()
     if len(b) != 2:
-      return True
+      return False
 
-    return False
+    four = b[0][0]
+    high = b[1][0]
+
+    return [four, high]
 
   def hasThreeOfAKind(self):
     """
@@ -245,16 +252,41 @@ class Hand:
     if len(b) != 3:
       return False
 
+    if b[1][1] == 2 or b[0][1] != 3:
+      return False
+
     # grab the 3 of a kind rank
-    three, nil = b[0]
+    three = b[0][0]
     b.pop(0)
 
     # sort the remaining cards
-    tuples = sorted(b, key=operator.itemgetter(0), reverse=True)
-    high, nil = tuples[0]
-    low, nil = tuples[1]
+    b = sorted(b, key=operator.itemgetter(0), reverse=True)
 
-    return [three, high, low]
+    return [three, b[0][0], b[1][0]]
+
+
+  def hasTwoPairs(self):
+    """
+
+    @return (mixed) an array containing the rank of the high pair, low pair, and remaining card (in descending order); or False if two pairs don't exist
+    """
+    b = self.__tuples()
+
+    if len(b) != 3:
+      return False
+
+    if b[0][1] != 2:
+      return False
+
+    p1 = b[0][0]
+    p2 = b[1][0]
+    high = b[2][0]
+
+    # ensure the two pair ranks are sorted in decreasing order
+    l = sorted([p1, p2], reverse=True)
+    l.append(high)
+
+    return l
 
   def hasPair(self):
     """
@@ -265,13 +297,13 @@ class Hand:
     if len(b) != 4:
       return False
 
-    pair, nil = b[0]
+    pair = b[0][1]
     b.pop(0)
 
     tuples = sorted(b, key=operator.itemgetter(0), reverse=True)
-    high, nil = tuples[0]
-    med, nil = tuples[1]
-    low, nil = tuples[2]
+    high = tuples[0][0]
+    med = tuples[1][0]
+    low = tuples[2][0]
 
     return [pair, high, med, low]
 
@@ -286,4 +318,8 @@ class Hand:
     """
     
     """
+
+#    mine = self.__tuples()
+#    other = other.__tuples()
+    
     return 1
