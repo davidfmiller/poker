@@ -139,7 +139,9 @@ class Hand:
 
   def __str__(self):
     """
-    @return (string) - ex: A string representation of the hand with cards in increasing order, ex: '7♣,8♣,9♥,10♣,J♦'
+    Retrieve a string representation of this Hand 
+
+    @return (string) - ex: '7♣,8♣,9♥,10♣,J♦'
     """
     buf = ''
 
@@ -153,8 +155,8 @@ class Hand:
 
   def __sequence(self, hand=None):
     """
-    Determine if a hand's cards are in decreasing sequential order
-    
+    Determine if a hand's cards are in decreasing sequential order (ie : a straight), ignoring the ace's high/low 
+
     @param (hand, optional) - the hand of cards to check 
     @return (mixed) - False if the hand does not have a straight (
     """
@@ -214,7 +216,7 @@ class Hand:
 
   def hasStraightFlush(self):
     """
-    @return (mixed) - the list of cards in descending order if a straight flush; False if no straight flush exists
+    @return (mixed) - the highest rank of the card in the straight flush if the hand exists; False if no straight flush exists
 
     @see hashFlush
     @see hasStraight
@@ -228,6 +230,7 @@ class Hand:
 
   def hasFlush(self):
     """
+    
     @return (mixed) - the list of cards in descending order if a flush; False if no flush exists
     """
     last = None
@@ -297,7 +300,7 @@ class Hand:
   def hasThreeOfAKind(self):
     """
 
-    @return 
+    @return a three-element array if the hand has a three of a kind; False if not
     """
     b = self.__tuples()
 
@@ -321,7 +324,7 @@ class Hand:
   def hasTwoPairs(self):
     """
 
-    @return (mixed) an array containing the rank of the high pair, low pair, and remaining card (in descending order); or False if two pairs don't exist
+    @return (mixed) an array containing the rank of the high pair, rank of the low pair, and remaining card (in descending order); or False if two pairs don't exist
     """
     b = self.__tuples()
 
@@ -344,7 +347,7 @@ class Hand:
 
   def hasPair(self):
     """
-    @return 
+    @return a four-element array containing the rank of the pair and then the remaining cards' ranks in descending order; or False if a pair
     """
 
     b = self.__tuples()
