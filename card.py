@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import operator
 
 ACE = 14
 KING = 13
@@ -60,9 +61,9 @@ class Card:
   def __eq__(self, other):
     """
 
-    @param other (Card)
+    @param other (Card,int)
     """
-    return self.rank == other.rank and self.suit == other.suit
+    return isinstance(other, int) and self.rank == other or self.rank == other.rank 
 
   def __cmp__(self, other):
     """
@@ -120,9 +121,22 @@ class Hand:
 
     return buf
 
+  def hasStraightFlush(self):
+    """
+    @return (mixed) - the list of cards in descending order if a straight flush; False if no straight flush exists
+
+    @see hashFlush
+    @see hasStraight
+    """
+    f = self.hasFlush()
+    if not f:
+      return False
+
+    return self.hasStraight()
+
   def hasFlush(self):
     """
-    @return 
+    @return (mixed) - the list of cards in descending order if a flush; False if no flush exists
     """
     last = None
     for i in self.cards:
@@ -131,7 +145,12 @@ class Hand:
       elif i.suit != last.suit:
         return False
 
-    return self.cards[-1].rank
+    # cards in reversed order
+    rev = self.cards[::-1]
+    return rev
+
+#  def __straight(self, cards):
+#    pass
 
   def hasStraight(self):
     """
@@ -159,11 +178,11 @@ class Hand:
     if not broken:
       return last.rank
 
-    # have an ace
+    # have an ace, check to see if we have a low straight
     cards[-1].rank = 1
     mycards = sorted(cards)
     last = None
-    
+
     for i in mycards:
 
       if not last:
@@ -175,26 +194,39 @@ class Hand:
 
     return last.rank
 
-  def __bucket(self):
+  def __tuples(self):
+    # return
+
     bucket = {}
 
     for i in self.cards:
-      r = str(i.rank)
+      r = i.rank
       if r in bucket:
         bucket[r] += 1
       else:
         bucket[r] = 1
 
-    return bucket
+    return sorted(bucket.items(), key=operator.itemgetter(1), reverse=True)
 
   def hasFullhouse(self):
     """
-    @return 
+    
+    @return (mixed) - a two-item array whose first item is the 3-of-a-kind rank & second item is the pair rank; False if no full house exists
+    @see hasThreeOfAKind
+    @see hasPair
     """
-    return False
+
+    t = self.hasThreeOfAKind()
+    p = self.hasPair()
+
+    if not t or not p:
+      return False
+
+    return [t[0], p[0]]
 
   def hasFourOfAKind(self):
     """
+
     @return 
     """
     b = self.__bucket()
@@ -205,30 +237,50 @@ class Hand:
 
   def hasThreeOfAKind(self):
     """
+
     @return 
     """
-    b = self.__bucket()
-#    keys = b.keys()
+    b = self.__tuples()
+
     if len(b) != 3:
       return False
-    pass
+
+    # grab the 3 of a kind rank
+    three, nil = b[0]
+    b.pop(0)
+
+    # sort the remaining cards
+    tuples = sorted(b, key=operator.itemgetter(0), reverse=True)
+    high, nil = tuples[0]
+    low, nil = tuples[1]
+
+    return [three, high, low]
 
   def hasPair(self):
     """
     @return 
     """
 
-    b = self.__bucket()
+    b = self.__tuples()
     if len(b) != 4:
-      return False 
+      return False
 
-    return True
+    pair, nil = b[0]
+    b.pop(0)
 
-  def hasHighCard(self):
+    tuples = sorted(b, key=operator.itemgetter(0), reverse=True)
+    high, nil = tuples[0]
+    med, nil = tuples[1]
+    low, nil = tuples[2]
+
+    return [pair, high, med, low]
+
+  def highCard(self):
     """
     
     """
-    return self.cards[-1]
+    rev = self.cards[::-1]
+    return rev
 
   def __cmp__(self, other):
     """
