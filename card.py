@@ -73,7 +73,10 @@ class Card:
     
     @param other (Card)
     """
-    return self.rank == other.rank
+    if isinstance(other, int):
+      return self.rank - other
+    else:
+      return self.rank - other.rank
 
 
   def __str__(self):
@@ -115,7 +118,7 @@ class Hand:
     if len(cards) != 5:
       raise Exception, 'Hand ' + str(cards) + ' is missing a card or two'
 
-    self.cards = sorted(cards)
+    self.cards = sorted(cards, reverse=True)
 
 
   def __str__(self):
@@ -123,7 +126,10 @@ class Hand:
     @return (string) - ex: A string representation of the hand, ex: 
     """
     buf = ''
-    for card in self.cards:
+    
+    rev = self.cards[::-1]
+
+    for card in rev:
       buf += (buf and ',' or '') + str(card)
 
     return buf
@@ -153,8 +159,7 @@ class Hand:
         return False
 
     # cards in reversed order
-    rev = self.cards[::-1]
-    return rev
+    return self.cards
 
 
   def __sequence(self, hand=None):
@@ -172,12 +177,12 @@ class Hand:
     for i in hand:
       if not last:
         last = i
-      elif (i.rank != last.rank + 1):
+      elif (i.rank != last.rank - 1):
         return False
       else:
         last = i
 
-    return last
+    return hand[0]
 
   def __cmpList(self, a, b):
     i = 0
@@ -209,16 +214,16 @@ class Hand:
     """
 
     if self.__sequence():
-      return self.cards[-1].rank
+      return self.cards[0].rank
 
     # if there's no ace then there's no chance for a low straight
-    if self.cards[-1].rank != ACE:
+    if self.cards[0].rank != ACE:
       return False
 
     # have an ace, check to see if we have a low straight
     cards = copy.copy(self.cards)
-    cards[-1].rank = 1
-    mycards = sorted(cards)
+    cards[0].rank = 1
+    mycards = sorted(cards, reverse=True)
     last = None
     return self.__sequence(mycards)
 
@@ -324,8 +329,7 @@ class Hand:
     """
     
     """
-    rev = self.cards[::-1]
-    return rev
+    return self.cards
 
   def __cmp__(self, other):
     """
@@ -344,7 +348,7 @@ class Hand:
     # straight flush
     if mf and sf:
       if os and of: # if they also have one, choose high card
-        return self.cards[-1].rank - other.cards[-1].rank
+        return self.cards[0].rank - other.cards[0].rank
       else:
         return 1
 
@@ -378,7 +382,6 @@ class Hand:
       else:
         return self.__cmpList(self.cards, other.cards)
 
-    
     if len(mt) == 3:
 
       # three of a kind    
@@ -403,4 +406,4 @@ class Hand:
         return self.__cmpList(self.cards, other.cards)
 
     # high card
-    return self.cards[-1].rank - other.cards[-1].rank
+    return self.cards[0].rank - other.cards[0].rank
