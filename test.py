@@ -109,6 +109,11 @@ class TestCard(unittest.TestCase):
     self.assertTrue(h['twoPairs'] > h['pair'])
     self.assertFalse(h['twoPairs'] < h['pair'])
 
+    self.assertTrue(h['four'] > h['fullHouse'])
+    self.assertTrue(h['fullHouse'] < h['four'])
+
+    self.assertTrue(h['fullHouse'] == h['fullHouse'])
+
   def testStraightFlush(self):
     self.assertEqual(self.hands['straightflush'].hasStraightFlush(), 11)
     pass

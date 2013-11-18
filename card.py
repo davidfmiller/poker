@@ -347,8 +347,18 @@ class Hand:
     b = self.__tuples()
     if self.hasFlush() or self.hasStraight() or len(b) < 5:
       return False
-    
+
     return copy.copy(self.cards)
+
+
+  def __eq__(self, other):
+    """
+    Determine if two hands are equal
+    
+    @return int
+    @see __cmp__    
+    """
+    return self.__cmp__(other) == 0
 
   def __cmp__(self, other):
     """
@@ -379,8 +389,8 @@ class Hand:
         return -1
 
     # four of a kind
-    if ml == 2:
-      if ol > 2: # they don't have four of a kind
+    if ml == 2 and mt[0][1] == 4:
+      if ol > 2 or ot[0][1] < 4: # they don't have four of a kind
         return 1 
       else:
         return mt[1][0] - ot[1][0] # determine higher four of a kind
