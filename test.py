@@ -103,6 +103,9 @@ class TestCard(unittest.TestCase):
     three = card.Hand([self.aceOfSpades, self.aceOfDiamonds, self.aceOfHearts, self.fiveOfHearts, self.twoOfHearts])
     self.assertEqual(three.hasThreeOfAKind(), [card.ACE, 5, 2])
 
+    four = card.Hand([self.aceOfSpades, self.aceOfClubs, self.aceOfDiamonds, self.jackOfClubs, self.aceOfHearts])
+    self.assertFalse(four.hasThreeOfAKind())
+
   def testStraight(self):
     """
     

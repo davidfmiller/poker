@@ -179,6 +179,30 @@ class Hand:
 
     return last
 
+  def __cmpList(self, a, b):
+    i = 0
+    while i < len(a):
+      if a[i] != b[i]:
+        return a[i] - b[i]
+      i += 1
+
+    return 0 # they're equal
+
+
+  def __tuples(self):
+
+    bucket = {}
+
+    for i in self.cards:
+      r = i.rank
+      if r in bucket:
+        bucket[r] += 1
+      else:
+        bucket[r] = 1
+
+    return sorted(bucket.items(), key=operator.itemgetter(1), reverse=True)
+
+
   def hasStraight(self):
     """
     @return the highest rank in the straight if it exists; False if not
@@ -198,18 +222,6 @@ class Hand:
     last = None
     return self.__sequence(mycards)
 
-  def __tuples(self):
-
-    bucket = {}
-
-    for i in self.cards:
-      r = i.rank
-      if r in bucket:
-        bucket[r] += 1
-      else:
-        bucket[r] = 1
-
-    return sorted(bucket.items(), key=operator.itemgetter(1), reverse=True)
 
   def hasFullhouse(self):
     """
@@ -220,10 +232,11 @@ class Hand:
     """
 
     b = self.__tuples()
-    if len(b) != 2:
+    if len(b) != 2 and b[0][1] != 3:
       return False
 
     return [b[0][0], b[1][0]]
+
 
   def hasFourOfAKind(self):
     """
@@ -249,6 +262,7 @@ class Hand:
     if len(b) != 3:
       return False
 
+    # ensure we don't have two pairs
     if b[0][1] != 3 or b[1][1] == 2:
       return False
 
@@ -328,15 +342,65 @@ class Hand:
     ot = other.__tuples()
 
     # straight flush
-    if mf and sf and (of < mf or os < ms):
-      return 1
-
-    if len(mt) == 2:
-      if len(ot) != 2:
-        return 1 # i have a four of a kind
+    if mf and sf:
+      if os and of: # if they also have one, choose high card
+        return self.cards[-1].rank - other.cards[-1].rank
       else:
-        return mt > ot # determine higher four of a kind
+        return 1
+
+    # four of a kind
+    if len(mt) == 2 and mt[0][1] == 4:
+      if len(ot) != 2:
+        return 1 
+      elif ot[0][1] == 3: # other hand is full house
+        return 1
+      else:
+        return mt[1][0] - ot[1][0] # determine higher four of a kind
+
+    # full house
+    if len(mt) == 2 and mt[0][1] == 3:
+      if len(ot) != 2:
+        return 1
+      else:  
+        return self.__cmpList(mt, ot)
+
+    # flush
+    if mf:
+      if not of:
+        return 1
+      else:
+        return self.__cmpList(mf, of)
+
+    # straight
+    if ms:
+      if not os:
+        return 1
+      else:
+        return self.__cmpList(self.cards, other.cards)
+
     
-#    if len(mt) == 
-    
-    pass
+    if len(mt) == 3:
+
+      # three of a kind    
+      if mt[0][1] == 3 and mt[1][1] != 2:
+        if len(ot) != 3 or mt[0][1] != 3 or mt[1][1] != 2:
+          return 1
+        else:
+          return self.__cmpList(self.cards, other.cards)
+
+      # two pairs
+      if mt[0][0] == 2 and mt[0][1] == 2:
+        if ot[0][0] != 2 or ot[0][1] != 2:
+          return 1
+        else:
+          return self.__cmpList(self.cards, other.cards)
+
+    # single pair
+    if len(mt) == 4:
+      if len(ot) != 4:
+        return 1
+      else:
+        return self.__cmpList(self.cards, other.cards)
+
+    # high card
+    return self.cards[-1].rank - other.cards[-1].rank
