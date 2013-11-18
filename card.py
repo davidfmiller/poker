@@ -17,19 +17,6 @@ DIAMONDS = '♦'
 
 SUITS = [CLUBS, HEARTS, SPADES, DIAMONDS]
 
-# http://en.wikipedia.org/wiki/List_of_poker_hands
-
-
-# straight flush
-# four of a kind
-# full house
-# flush
-# straight
-# three of a kind
-# two pair
-# one pair
-# high card
-
 class Card:
   """
   
@@ -140,34 +127,6 @@ class Hand:
     return buf
 
 
-  def hasStraightFlush(self):
-    """
-    @return (mixed) - the list of cards in descending order if a straight flush; False if no straight flush exists
-
-    @see hashFlush
-    @see hasStraight
-    """
-    f = self.hasFlush()
-    if not f:
-      return False
-
-    return self.hasStraight()
-
-
-  def hasFlush(self):
-    """
-    @return (mixed) - the list of cards in descending order if a flush; False if no flush exists
-    """
-    last = None
-    for i in self.cards:
-      if not last:
-        last = i
-      elif i.suit != last.suit:
-        return False
-
-    return self.cards
-
-
   def __sequence(self, hand=None):
     """
     Determine if a hand's cards are in decreasing sequential order
@@ -219,6 +178,34 @@ class Hand:
         bucket[r] = 1
 
     return sorted(bucket.items(), key=operator.itemgetter(1), reverse=True)
+
+
+  def hasStraightFlush(self):
+    """
+    @return (mixed) - the list of cards in descending order if a straight flush; False if no straight flush exists
+
+    @see hashFlush
+    @see hasStraight
+    """
+    f = self.hasFlush()
+    if not f:
+      return False
+
+    return self.hasStraight()
+
+
+  def hasFlush(self):
+    """
+    @return (mixed) - the list of cards in descending order if a flush; False if no flush exists
+    """
+    last = None
+    for i in self.cards:
+      if not last:
+        last = i
+      elif i.suit != last.suit:
+        return False
+
+    return self.cards
 
 
   def hasStraight(self):
@@ -355,7 +342,9 @@ class Hand:
 
   def __cmp__(self, other):
     """
+
     @return int (self - other)
+    @see http://en.wikipedia.org/wiki/List_of_poker_hands
     """
 
     mf = self.hasFlush()

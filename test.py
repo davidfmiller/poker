@@ -32,8 +32,18 @@ class TestCard(unittest.TestCase):
 
     self.hands = {}
 
-    self.hands['twoPairs'] = card.Hand([self.twoOfHearts, self.twoOfClubs, self.sevenOfHearts, self.sevenOfClubs, self.queenOfHearts])
+    # straight flush
+    # four of a kind
+    # full house
+    # flush
+    # straight
+    # three of a kind
+    # two pair
+    # one pair
+    # high card
+
     self.hands['straightflush'] = card.Hand([card.Card(11, card.CLUBS), card.Card(9, card.CLUBS), card.Card(10, card.CLUBS), card.Card(8, card.CLUBS), card.Card(7, card.CLUBS)])
+    self.hands['twoPairs'] = card.Hand([self.twoOfHearts, self.twoOfClubs, self.sevenOfHearts, self.sevenOfClubs, self.queenOfHearts])
     self.hands['highStraight'] = card.Hand([self.kingOfDiamonds, self.aceOfSpades, self.jackOfClubs, self.queenOfHearts, self.tenOfClubs])
     self.hands['lowStraight'] = card.Hand([self.twoOfHearts, self.threeOfHearts, self.fourOfHearts, self.fiveOfHearts, self.aceOfSpades])
     self.hands['four'] = card.Hand([self.aceOfSpades, self.aceOfClubs, self.aceOfDiamonds, self.jackOfClubs, self.aceOfHearts])
