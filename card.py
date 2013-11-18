@@ -429,7 +429,7 @@ class Hand:
         return 1
       else:
         return self.__cmpList(self.cards, other.cards)
-    elif len(ot) <= 4:
+    elif len(ot) <= 4: # they have a pair, we lose
       return -1
 
     # high card
