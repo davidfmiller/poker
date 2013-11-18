@@ -220,13 +220,11 @@ class Hand:
     @see hasPair
     """
 
-    t = self.hasThreeOfAKind()
-    p = self.hasPair()
-
-    if not t or not p:
+    b = self.__tuples()
+    if len(b) != 2:
       return False
 
-    return [t[0], p[0]]
+    return [b[0][0], b[1][0]]
 
   def hasFourOfAKind(self):
     """
@@ -319,7 +317,7 @@ class Hand:
     
     """
 
-#    mine = self.__tuples()
-#    other = other.__tuples()
+    mine = self.__tuples()
+    other = other.__tuples()
     
     return 1

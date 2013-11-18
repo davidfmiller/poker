@@ -29,6 +29,7 @@ class TestCard(unittest.TestCase):
     self.fourOfHearts = card.Card(4, card.HEARTS)
     self.fiveOfHearts = card.Card(5, card.HEARTS)
 
+    self.twoOfClubs = card.Card(2, card.CLUBS)
     self.sevenOfClubs = card.Card(7, card.CLUBS)
     self.sevenOfHearts = card.Card(7, card.HEARTS)
     self.nineOfHearts = card.Card(9, card.HEARTS)
@@ -69,7 +70,8 @@ class TestCard(unittest.TestCase):
     hand = card.Hand([card.Card(11, card.CLUBS), card.Card(10, card.CLUBS), card.Card(9, card.CLUBS), card.Card(8, card.CLUBS), card.Card(7, card.CLUBS)])
     self.assertEquals(str(hand), '7♣,8♣,9♣,10♣,J♣')
 
-  def testCmp(self):
+  def testCardCmp(self):
+
     self.assertGreater(self.aceOfSpades, self.kingOfDiamonds)
     self.assertGreater(self.kingOfDiamonds, self.queenOfHearts)
     self.assertGreater(self.queenOfHearts, self.jackOfClubs)
@@ -77,6 +79,14 @@ class TestCard(unittest.TestCase):
     self.assertEqual(self.aceOfSpades, self.aceOfHearts)
     self.assertEqual(self.aceOfSpades, card.ACE)
 
+  def testHandCmp(self):
+
+    straightFlush = card.Hand([card.Card(11, card.CLUBS), card.Card(9, card.CLUBS), card.Card(10, card.CLUBS), card.Card(8, card.CLUBS), card.Card(7, card.CLUBS)])
+    highStraight = card.Hand([self.kingOfDiamonds, self.aceOfSpades, self.jackOfClubs, self.queenOfHearts, self.tenOfClubs])
+    lowStraight = card.Hand([self.twoOfHearts, self.threeOfHearts, self.fourOfHearts, self.fiveOfHearts, self.aceOfSpades])
+
+#    self.assertTrue(straightFlush > highStraight)
+#    self.assertFalse(lowStraight > highStraight)
 
   def testStraightFlush(self):
     straightflush = card.Hand([card.Card(11, card.CLUBS), card.Card(9, card.CLUBS), card.Card(10, card.CLUBS), card.Card(8, card.CLUBS), card.Card(7, card.CLUBS)])
@@ -99,6 +109,12 @@ class TestCard(unittest.TestCase):
 
     self.assertEqual(highStraight.hasStraight(), 14)
     self.assertEqual(lowStraight.hasStraight(), 5)
+
+  def testFullHouse(self):
+
+    fullHouse = card.Hand([self.aceOfSpades, self.aceOfClubs, self.aceOfDiamonds, self.twoOfHearts, self.twoOfClubs])
+    self.assertEqual(fullHouse.hasFullhouse(), [14, 2])
+
 
   def testFlush(self):
 
