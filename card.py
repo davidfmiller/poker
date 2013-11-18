@@ -135,7 +135,7 @@ class Hand:
     if len(cards) != 5:
       raise Exception, 'Hand ' + str(cards) + ' is missing a card or two'
 
-    self.cards = sorted(cards, reverse=True)
+    self.__cards = sorted(cards, reverse=True)
 
   def __str__(self):
     """
@@ -143,7 +143,7 @@ class Hand:
     """
     buf = ''
 
-    rev = self.cards[::-1]
+    rev = self.__cards[::-1]
 
     for card in rev:
       buf += (buf and ',' or '') + str(card)
@@ -160,7 +160,9 @@ class Hand:
     """
 
     if not hand:
-      hand = self.cards
+      hand = self.__cards
+
+    hand = copy.deepcopy(hand)
 
     last = None
     for i in hand:
@@ -194,12 +196,13 @@ class Hand:
 
   def __tuples(self):
     """
-    Return a list of tuples containing the frequency of cards in the hand,
+    Return a list of tuples containing the card ranks and their frequency within the hand
+
     ex: 2♥,A♠,5♥,A♥,A♦ → [(14, 3), (2, 1), (5, 1)] 
     """
     bucket = {}
 
-    for i in self.cards:
+    for i in self.__cards:
       r = i.rank()
       if r in bucket:
         bucket[r] += 1
@@ -228,13 +231,13 @@ class Hand:
     @return (mixed) - the list of cards in descending order if a flush; False if no flush exists
     """
     last = None
-    for i in self.cards:
+    for i in self.__cards:
       if not last:
         last = i
       elif i.suit() != last.suit():
         return False
 
-    return self.cards
+    return copy.deepcopy(self.__cards)
 
 
   def hasStraight(self):
@@ -244,14 +247,14 @@ class Hand:
     """
 
     if self.__sequence():
-      return self.cards[0].rank()
+      return self.__cards[0].rank()
 
     # if there's no ace then there's no chance for a low straight
-    if self.cards[0].rank() != ACE:
+    if self.__cards[0].rank() != ACE:
       return False
 
     # have an ace, check to see if we have a low straight
-    cards = copy.deepcopy(self.cards)
+    cards = copy.deepcopy(self.__cards)
     cards[0].highlow()
     mycards = sorted(cards, reverse=True)
     last = None
@@ -372,7 +375,7 @@ class Hand:
     if self.hasFlush() or self.hasStraight() or len(b) < 5:
       return False
 
-    return copy.deepcopy(self.cards)
+    return copy.deepcopy(self.__cards)
 
 
   def __eq__(self, other):
@@ -460,7 +463,7 @@ class Hand:
         if ot[0][1] != 3:
           return 1
         else:
-          return self.__cmpList(self.cards, other.cards)
+          return self.__cmpList(self.__cards, other.__cards)
       elif len(ot) == 3 and ot[0][1] == 3:
         return -1
 
@@ -468,7 +471,7 @@ class Hand:
         if ol != 3 or ot[0][1] != 2:
           return 1
         else:
-          return self.__cmpList(self.cards, other.cards)
+          return self.__cmpList(self.__cards, other.__cards)
       elif ol == 3 and ot[0][0] == 2 and ot[0][1] == 2:
         return -1
 
@@ -480,9 +483,9 @@ class Hand:
       if ol != 4: # if they don't have a pair we win
         return 1
       else:
-        return self.__cmpList(self.cards, other.cards) # see who has the highest pair & remaining cards
+        return self.__cmpList(self.__cards, other.__cards) # see who has the highest pair & remaining cards
     elif ol <= 4: # they have a pair, we lose
       return -1
 
     # high card
-    return self.__cmpList(self.cards, other.cards) # it boils down to high cards
+    return self.__cmpList(self.__cards, other.__cards) # it boils down to high cards
