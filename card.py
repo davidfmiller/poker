@@ -44,8 +44,32 @@ class Card:
     # enforce valid rank
     range(2,14 + 1).index(rank)
 
-    self.rank = rank
-    self.suit = suit
+    self.__rank = rank
+    self.__suit = suit
+
+
+  def highlow(self):
+    """
+    Toggle high/low value if this card is an ace
+    """
+    if self.__rank == ACE:
+      self.__rank = 1
+    elif self.__rank == 1:
+      self.__rank = ACE
+
+
+  def rank(self):
+    """
+    @return int
+    """
+    return self.__rank
+
+
+  def suit(self):
+    """
+    @return string    
+    """
+    return self.__suit
 
 
   def __eq__(self, other):
@@ -53,7 +77,7 @@ class Card:
 
     @param other (Card,int)
     """
-    return isinstance(other, int) and self.rank == other or self.rank == other.rank 
+    return isinstance(other, int) and self.rank() == other or self.rank() == other.rank()
 
 
   def __cmp__(self, other):
@@ -63,9 +87,9 @@ class Card:
     @param other (Card,int)
     """
     if isinstance(other, int):
-      return self.rank - other
+      return self.rank() - other
     else:
-      return self.rank - other.rank
+      return self.rank() - other.rank()
 
 
   def __str__(self):
@@ -75,7 +99,7 @@ class Card:
     @return string
     """
   
-    r = self.rank
+    r = self.rank()
     if (r > 10):
       r = {
         '14' : 'A',
@@ -84,7 +108,7 @@ class Card:
         '11' : 'J'
       }.get(str(r))
 
-    return str(r) + self.suit
+    return str(r) + self.suit()
 
 
   def __sub__(self, other):
@@ -95,9 +119,9 @@ class Card:
     @return int
     """
     if isinstance(other, int):
-      return self.rank - other
+      return self.rank() - other
 
-    return self.rank - other.rank
+    return self.rank() - other.rank()
 
 
 class Hand:
@@ -142,7 +166,7 @@ class Hand:
     for i in hand:
       if not last:
         last = i
-      elif (i.rank != last.rank - 1):
+      elif (i.rank() != last.rank() - 1):
         return False
       else:
         last = i
@@ -176,7 +200,7 @@ class Hand:
     bucket = {}
 
     for i in self.cards:
-      r = i.rank
+      r = i.rank()
       if r in bucket:
         bucket[r] += 1
       else:
@@ -207,7 +231,7 @@ class Hand:
     for i in self.cards:
       if not last:
         last = i
-      elif i.suit != last.suit:
+      elif i.suit() != last.suit():
         return False
 
     return self.cards
@@ -220,19 +244,19 @@ class Hand:
     """
 
     if self.__sequence():
-      return self.cards[0].rank
+      return self.cards[0].rank()
 
     # if there's no ace then there's no chance for a low straight
-    if self.cards[0].rank != ACE:
+    if self.cards[0].rank() != ACE:
       return False
 
     # have an ace, check to see if we have a low straight
     cards = copy.deepcopy(self.cards)
-    cards[0].rank = 1
+    cards[0].highlow()
     mycards = sorted(cards, reverse=True)
     last = None
     if self.__sequence(mycards):
-      return mycards[0].rank
+      return mycards[0].rank()
 
     return False
 
@@ -348,7 +372,7 @@ class Hand:
     if self.hasFlush() or self.hasStraight() or len(b) < 5:
       return False
 
-    return copy.copy(self.cards)
+    return copy.deepcopy(self.cards)
 
 
   def __eq__(self, other):
@@ -358,13 +382,14 @@ class Hand:
     @return int
     @see __cmp__    
     """
-    
+
     return self.__cmp__(other) == 0
 
   def __cmp__(self, other):
     """
 
-    @return int (self - other)
+    @param other (Card)
+    @return int - an integer value indicating which hand is higher-ranking
     @see http://en.wikipedia.org/wiki/List_of_poker_hands
     """
 
