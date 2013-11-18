@@ -81,7 +81,7 @@ class Card:
 
   def __str__(self):
     """
-    
+    A string representation of the card, ex: 'A♣', '2♥', etc.
     @return string
     """
   
