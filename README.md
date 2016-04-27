@@ -1,4 +1,4 @@
-poker
+🃏 poker
 =====
 
 One approach to determining relative ranking of poker hands
@@ -26,3 +26,5 @@ The above code will print the following:
 ```
 7♣,8♣,9♣,10♣,J♣ > 2♣,2♥,7♣,7♥,Q♥
 ```
+
+The command `python card.py ` will produce a single, randomly-selected card, ex: `10♥` or `Q♦`

@@ -1,9 +1,15 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+"""
+
+"""
+
+
 import sys
 import operator
 import copy
+import random
 
 ACE = 14
 KING = 13
@@ -16,17 +22,18 @@ SPADES = '♠'
 DIAMONDS = '♦'
 
 SUITS = [CLUBS, HEARTS, SPADES, DIAMONDS]
+RANKS = [1,2,3,4,5,6,7,8,9,10,JACK, QUEEN, KING, ACE]
 
 class Card:
   """
-  
+  Represents a single playing card, storing its rank and suit
   """
 
   def __init__(self, rank, suit):
     """
     Create a new card
 
-    @param rank (int) - 
+    @param rank (int) - A integer between 1 and 14 (inclusive), where an Ace is `1` or `14`, a Jack `11`, a Queen `12`, and a King `13`
     @param suit (string) - one of card.CLUBS ('♣'), card.HEARTS ('♥'), card.SPADES ('♠'), card.DIAMONDS ('♦')
     """
     if not suit in SUITS:
@@ -35,14 +42,14 @@ class Card:
     # handle chars for card ranks
     if not isinstance(rank, int):
       rank = rank.upper()
-      rank = {'A' : 14, 'K' : 13, 'Q' : 12, 'J' : 11 }.get(rank)
+      rank = {'A' : ACE, 'K' : KING, 'Q' : QUEEN, 'J' : JACK }.get(rank)
 
     # force ace to be high for now
     if rank == 1:
-      rank = 14
+      rank = ACE
 
     # enforce valid rank
-    range(2,14 + 1).index(rank)
+    range(2,ACE + 1).index(rank)
 
     self.__rank = rank
     self.__suit = suit
@@ -74,7 +81,7 @@ class Card:
 
   def __eq__(self, other):
     """
-
+    Determine is two cards are of the same rank
     @param other (Card,int)
     """
     return isinstance(other, int) and self.rank() == other or self.rank() == other.rank()
@@ -85,6 +92,7 @@ class Card:
     Determine which card has a higher rank
 
     @param other (Card,int)
+    @return int
     """
     if isinstance(other, int):
       return self.rank() - other
@@ -102,10 +110,10 @@ class Card:
     r = self.rank()
     if (r > 10):
       r = {
-        '14' : 'A',
-        '13' : 'K',
-        '12' : 'Q',
-        '11' : 'J'
+        str(ACE)   : 'A',
+        str(KING)  : 'K',
+        str(QUEEN) : 'Q',
+        str(JACK)  : 'J'
       }.get(str(r))
 
     return str(r) + self.suit()
@@ -123,17 +131,59 @@ class Card:
 
     return self.rank() - other.rank()
 
+class Deck:
+  """
+  Object that stores a deck of (52) playing cards
+  """
+
+  def __init__(self):
+    """
+    Create a new deck of (52) sequential cards
+    """
+
+    self.__cards = []
+
+    for suit in SUITS:
+      for rank in RANKS:
+        self.__cards.append(Card(rank, suit))
+
+  def shuffle(self):
+    """
+    Shuffle the cards' positions within the deck
+    """
+    random.shuffle(self.__cards)
+
+  def deal(self):
+    """
+    Pop a Card off the top of the deck and return it
+
+    @return Card, or None if the deck is empty
+    """
+    return len(self.__cards) > 0 and self.__cards.pop() or None
+
+  def __str__(self):
+    """
+    Retrieve a string representation of the deck
+
+    @return string
+    """
+    buf = ''
+    for i in self.__cards:
+      buf += str(i) + " "
+    return buf.strip()
+
 
 class Hand:
   """
-  
+  Represents a poker hand (of 5 cards)
   """
   def __init__(self, cards):
     """
-      
+    
+    @param cards - a list of 5 cards   
     """
     if len(cards) != 5:
-      raise Exception, 'Hand ' + str(cards) + ' is missing a card or two'
+      raise Exception, 'Hand ' + str(cards) + ' doesn\'t contain 5 cards'
 
     self.__cards = sorted(cards, reverse=True)
 
@@ -490,3 +540,8 @@ class Hand:
 
 
     return self.__cmpList(self.__cards, other.__cards) # it boils down to high cards
+
+if __name__ == '__main__':
+    d = Deck()
+    d.shuffle()
+    print d.deal()
